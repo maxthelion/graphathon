@@ -17,17 +17,18 @@
       return lineargradient
     }
     
-    var ConnectionGraph = function(canvas_id, data, label, threshold) {
+    var ConnectionGraph = function(canvas_id, data, label, threshold, y_axis_element) {
 	    var canvas = document.getElementById(canvas_id)
 	    var ctx = canvas.getContext('2d'); 
 	    var graphHeight = 200;
 	    var graphWidth = 500;
 	    var leftOffset = 5;
-	    var maxY = 100; //hard coded
+	    var maxY = 150; //hard coded
 	    var minY = 0; //hard coded
 	    var data = data;
 	    var labelElement = label;
 	    var threshold = threshold;
+	    var y_axis_element = y_axis_element;
 	    
 	    var draw = function(){
 	      clearGraph()
@@ -86,17 +87,19 @@
 	    };
 	    
 	    var draw_y_axis = function(){
+	      console.log(y_axis_element);
 	      var y_element = $('<div>');
 	      y_element.addClass('yAxis');
 	      
         y_element.append(add_y_label(maxY));
         y_element.append(add_y_label(minY));
         
-	      $('#connection_canvas_holder').append(y_element);
+	      y_axis_element.append(y_element);
 	    }
 	    var add_y_label = function(y){
 	      label = $("<span>"+y+"</span>");
-	      label.css('top', "500px");
+	      label.css('top', "10px");
+	      label.css('position', "absolute");
 	      return label;
 	    }
 	    
@@ -214,13 +217,24 @@
 	    var connectionGraph = new ConnectionGraph(
 	      'connection_canvas', 
 	      connection_data,
-	      $('#connection_label .bignum')
+	      $('#connection_label .bignum'),
+	      100,
+	      $('#connection_canvas_holder')
 	    );
-	    var messageGraph = new ConnectionGraph('message_canvas', message_data, $('#message_label .bignum'));
+	    var messageGraph = new ConnectionGraph(
+	      'message_canvas', 
+	      message_data, 
+	      $('#message_label .bignum'), 
+	      100,
+	      $('#message_canvas_holder')
+	    );
 	    var dailyMessageGraph = new DailyMessageGraph('daily_message_canvas', daily_message_data);
 	  });
   </script>
   <style type="text/css" media="screen">
+    * {
+      font-family: arial;
+    }
     canvas {
       float: left;
     }
