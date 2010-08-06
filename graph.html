@@ -22,8 +22,9 @@
 	    var ctx = canvas.getContext('2d'); 
 	    var graphHeight = 200;
 	    var graphWidth = 500;
-	    var leftOffset = 0;
+	    var leftOffset = 5;
 	    var maxY = 100; //hard coded
+	    var minY = 0; //hard coded
 	    var data = data;
 	    var labelElement = label;
 	    var threshold = threshold;
@@ -33,12 +34,12 @@
 	      draw_gradient();
 	      draw_threshold();
         ctx.beginPath();
-        ctx.moveTo(0, 0);
+        ctx.moveTo(leftOffset, 0);
         ctx.fillStyle = "white"
         ctx.lineWidth = 1;
         ctx.strokeStyle = lineColor;
         for(var i= 0; i < data.length; i++){       
-          ctx.lineTo(i * xInterval(), yHeight(data[i]))
+          ctx.lineTo(xPoint(i), yHeight(data[i]))
         }
         ctx.lineTo( graphWidth, 0);
         ctx.closePath();
@@ -47,44 +48,20 @@
         draw_circles();
 	    };
 	    
-	    var draw_animated = function() {
-	      var i = 0;
-	      var interval = setInterval(function(){
-	        i++;
-          draw_line(i);
-	        if (i > data.length){
-	          clearInterval(interval);
-	          draw();
-	        }
-	      }, 5000 / data.length)
+	    var xPoint = function(i){
+	      return i * xInterval() + leftOffset;
 	    }
-	    
-	    var draw_line = function(upto){
-	      clearGraph();
-	      ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.fillStyle = "white"
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = lineColor;
-        for(var i= 0; i < upto; i++){       
-          ctx.lineTo(i * xInterval(), yHeight(data[i]))
-        }
-        ctx.lineTo( graphWidth, 0);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-	    };
 	    
 	    var draw_threshold = function(){
 	      ctx.beginPath();
 	      ctx.fillStyle = "rgba(255, 0, 0, 0.4)"
-	      ctx.rect(0,0, graphWidth, 70);
+	      ctx.rect(leftOffset,0, graphWidth, 70);
 	      ctx.fill();
 	    }
 	    
 	    var draw_gradient= function(){
 	      ctx.fillStyle = pusherlineargradient(ctx, graphHeight);  
-	      ctx.rect(0,0, graphWidth, graphHeight);
+	      ctx.rect(leftOffset,0, graphWidth, graphHeight);
 	      ctx.fill();
 	    }
 	    
@@ -96,7 +73,7 @@
 	        ctx.fillStyle = dotColor;
 	        myDotRadius = (i == xIndex) ? 10 : dotRadius
 	        ctx.arc(
-	          i * xInterval(), 
+	          xPoint(i), 
 	          yHeight(data[i]),
 	          myDotRadius,
 	          0,
@@ -108,24 +85,39 @@
 	      }
 	    };
 	    
+	    var draw_y_axis = function(){
+	      var y_element = $('<div>');
+	      y_element.addClass('yAxis');
+	      
+        y_element.append(add_y_label(maxY));
+        y_element.append(add_y_label(minY));
+        
+	      $('#connection_canvas_holder').append(y_element);
+	    }
+	    var add_y_label = function(y){
+	      label = $("<span>"+y+"</span>");
+	      label.css('top', "500px");
+	      return label;
+	    }
+	    
 	    var clearGraph = function(){
 	      ctx.clearRect(0,0, graphWidth, graphWidth);
 	    }
 	    
 	    var xInterval = function(){
-	      return canvas.width / (data.length - 1)
+	      return (canvas.width - leftOffset) / (data.length - 1)
 	    };
 	    
 	    var yHeight = function(y) {
-	      return graphHeight - (y * yScale());
+	      return graphHeight - (y * yScale()) ;
 	    };
 	    
 	    var yScale = function() {
 	      return graphHeight / maxY; 
 	    };
 	    
-	    // draw();
-	    draw_animated();
+	    draw();
+	    draw_y_axis();
 	    
 	    $(canvas).mousemove(function(evt){
 	      xIndex = Math.floor( evt.offsetX/xInterval() )
@@ -146,7 +138,7 @@
 	    var graphHeight = 200;
 	    var graphWidth = 500;
 	    var leftOffset = 0;
-	    var maxY = 5; //hard coded
+	    var maxY = 10; //hard coded
 	    var data = data;
 	    
 	    var draw = function(){
@@ -161,6 +153,17 @@
 	          yHeight(data[i]),
 	          10
 	        )
+	      }
+	      draw_labels();
+	    }
+	    
+	    var draw_labels = function(){
+	      for(var i= 0; i < data.length; i++){
+	        var label = $('<span>')
+	        label.text(data[i]);
+	        label.addClass('bar_label');
+	        label.css('left', i * xInterval() + (xInterval() / 2 ) - 25 + 'px')
+	        $('#daily_message_canvas_holder').append(label)
 	      }
 	    }
 	    
@@ -198,14 +201,14 @@
 	  generate_random_data = function(array_length, max){
   	   var array = []
   	   for(var i = 0; i < array_length; i++){
-  	     array.push(Math.random() * max);
+  	     array.push(Math.floor(Math.random() * max));
   	   } 
   	   return array;
 	  }
 	  
 	  connection_data = generate_random_data(30, 100);
 	  message_data = generate_random_data(100, 100);
-	  daily_message_data = generate_random_data(5, 5);
+	  daily_message_data = generate_random_data(5, 10);
 	  
 	  $().ready(function(){
 	    var connectionGraph = new ConnectionGraph(
@@ -227,6 +230,7 @@
     }
     .holder {
       clear:left;
+      position: relative;
     }
     .bignum {
       font-size: 7em;
@@ -234,6 +238,23 @@
       line-height: 200px;
       text-align: center;
       display:block;
+    }
+    .bar_label {
+      position: absolute;
+      top: 160px;
+      font-family: arial;
+      font-size: 2em;
+      width: 50px;
+      text-align: center;
+    }
+    #daily_message_canvas_holder {
+      position: relative;
+    }
+    .yAxis {
+      position: absolute;
+    }
+    #connection_canvas, #message_canvas {
+      margin-left: 20px;
     }
   </style>
 </head>
