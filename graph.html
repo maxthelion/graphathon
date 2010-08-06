@@ -1,0 +1,258 @@
+<html>
+<head>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript" charset="utf-8">
+    var pusherColor = "ddd";
+    var pusherColor2 = "aaa";
+    var lineColor = '#555';
+    var dotColor = "#555";
+    var dotStrokeWidth = 2;
+    var dotRadius = 4;
+    var xIndex;
+    
+    pusherlineargradient = function(ctx, graphHeight){
+      var lineargradient = ctx.createLinearGradient(0,0,0,graphHeight);  
+      lineargradient.addColorStop(0.5,  pusherColor);  
+      lineargradient.addColorStop(1,  pusherColor2);
+      return lineargradient
+    }
+    
+    var ConnectionGraph = function(canvas_id, data, label, threshold) {
+	    var canvas = document.getElementById(canvas_id)
+	    var ctx = canvas.getContext('2d'); 
+	    var graphHeight = 200;
+	    var graphWidth = 500;
+	    var leftOffset = 0;
+	    var maxY = 100; //hard coded
+	    var data = data;
+	    var labelElement = label;
+	    var threshold = threshold;
+	    
+	    var draw = function(){
+	      clearGraph()
+	      draw_gradient();
+	      draw_threshold();
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.fillStyle = "white"
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = lineColor;
+        for(var i= 0; i < data.length; i++){       
+          ctx.lineTo(i * xInterval(), yHeight(data[i]))
+        }
+        ctx.lineTo( graphWidth, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        draw_circles();
+	    };
+	    
+	    var draw_animated = function() {
+	      var i = 0;
+	      var interval = setInterval(function(){
+	        i++;
+          draw_line(i);
+	        if (i > data.length){
+	          clearInterval(interval);
+	          draw();
+	        }
+	      }, 5000 / data.length)
+	    }
+	    
+	    var draw_line = function(upto){
+	      clearGraph();
+	      ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.fillStyle = "white"
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = lineColor;
+        for(var i= 0; i < upto; i++){       
+          ctx.lineTo(i * xInterval(), yHeight(data[i]))
+        }
+        ctx.lineTo( graphWidth, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+	    };
+	    
+	    var draw_threshold = function(){
+	      ctx.beginPath();
+	      ctx.fillStyle = "rgba(255, 0, 0, 0.4)"
+	      ctx.rect(0,0, graphWidth, 70);
+	      ctx.fill();
+	    }
+	    
+	    var draw_gradient= function(){
+	      ctx.fillStyle = pusherlineargradient(ctx, graphHeight);  
+	      ctx.rect(0,0, graphWidth, graphHeight);
+	      ctx.fill();
+	    }
+	    
+	    var draw_circles = function(){
+	      for(var i= 0; i < data.length; i++){
+	        ctx.strokeStyle = "white"
+	        ctx.lineWidth = dotStrokeWidth;
+	        ctx.beginPath();
+	        ctx.fillStyle = dotColor;
+	        myDotRadius = (i == xIndex) ? 10 : dotRadius
+	        ctx.arc(
+	          i * xInterval(), 
+	          yHeight(data[i]),
+	          myDotRadius,
+	          0,
+	          Math.PI*2,
+	          true
+	        );
+	        ctx.fill();
+	        ctx.stroke();
+	      }
+	    };
+	    
+	    var clearGraph = function(){
+	      ctx.clearRect(0,0, graphWidth, graphWidth);
+	    }
+	    
+	    var xInterval = function(){
+	      return canvas.width / (data.length - 1)
+	    };
+	    
+	    var yHeight = function(y) {
+	      return graphHeight - (y * yScale());
+	    };
+	    
+	    var yScale = function() {
+	      return graphHeight / maxY; 
+	    };
+	    
+	    // draw();
+	    draw_animated();
+	    
+	    $(canvas).mousemove(function(evt){
+	      xIndex = Math.floor( evt.offsetX/xInterval() )
+	      labelElement.html( Math.floor(data[xIndex]) )
+	      draw();
+	    })
+	    
+	    $(canvas).mouseout(function(evt){
+	      xIndex = null
+	      labelElement.html( '' )
+	      draw();
+	    })
+	  };
+	  
+	  var DailyMessageGraph = function(canvas_id, data) {
+	    var canvas = document.getElementById(canvas_id)
+	    var ctx = canvas.getContext('2d'); 
+	    var graphHeight = 200;
+	    var graphWidth = 500;
+	    var leftOffset = 0;
+	    var maxY = 5; //hard coded
+	    var data = data;
+	    
+	    var draw = function(){
+        ctx.fillStyle = pusherlineargradient(ctx, graphHeight);
+	      ctx.beginPath();
+	      for(var i= 0; i < data.length; i++){
+	        roundedRect(
+	          ctx,
+	          i * xInterval() + 10, 
+	          yTopOffset(data[i]),
+	          xInterval() - 20,
+	          yHeight(data[i]),
+	          10
+	        )
+	      }
+	    }
+	    
+	    var xInterval = function(){
+	      return canvas.width / (data.length)
+	    };
+	    
+	    var yTopOffset = function(y){
+	      return graphHeight - yHeight(y);
+	    };
+	    
+	    var yHeight = function(y) {
+	      return  y * yScale();
+	    };
+	    
+	    var yScale = function() {
+	      return graphHeight / maxY; 
+	    };
+	    
+	    function roundedRect(ctx,x,y,width,height,radius){  
+        ctx.beginPath();  
+        ctx.moveTo(x,y+radius);  
+        ctx.lineTo(x,y+height);  
+        ctx.lineTo(x+width,y+height);  
+        ctx.lineTo(x+width,y+radius);  
+        ctx.quadraticCurveTo(x+width,y,x+width-radius,y);  
+        ctx.lineTo(x+radius,y);  
+        ctx.quadraticCurveTo(x,y,x,y+radius);  
+        ctx.fill();  
+      };
+      
+	    draw();
+	  };
+	  
+	  generate_random_data = function(array_length, max){
+  	   var array = []
+  	   for(var i = 0; i < array_length; i++){
+  	     array.push(Math.random() * max);
+  	   } 
+  	   return array;
+	  }
+	  
+	  connection_data = generate_random_data(30, 100);
+	  message_data = generate_random_data(100, 100);
+	  daily_message_data = generate_random_data(5, 5);
+	  
+	  $().ready(function(){
+	    var connectionGraph = new ConnectionGraph(
+	      'connection_canvas', 
+	      connection_data,
+	      $('#connection_label .bignum')
+	    );
+	    var messageGraph = new ConnectionGraph('message_canvas', message_data, $('#message_label .bignum'));
+	    var dailyMessageGraph = new DailyMessageGraph('daily_message_canvas', daily_message_data);
+	  });
+  </script>
+  <style type="text/css" media="screen">
+    canvas {
+      float: left;
+    }
+    .sidething {
+      float: left;
+      width: 200px;
+    }
+    .holder {
+      clear:left;
+    }
+    .bignum {
+      font-size: 7em;
+      font-family: arial;
+      line-height: 200px;
+      text-align: center;
+      display:block;
+    }
+  </style>
+</head>
+<body>
+
+<div id="connection_canvas_holder" class="holder">
+<canvas id="connection_canvas" height="200" width="500"></canvas>
+<div id="connection_label" class="sidething">
+  <span class="bignum">300</span>
+</div>
+</div>
+<div id="message_canvas_holder" class="holder">
+<canvas id="message_canvas" height="200" width="500"></canvas>
+<div id="message_label" class="sidething">
+  <span class="bignum">300</span>
+</div>
+</div>
+<div id="daily_message_canvas_holder" class="holder">
+<canvas id="daily_message_canvas" height="200" width="500"></canvas>
+</div>
+</body>
+</html>
