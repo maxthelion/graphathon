@@ -50,8 +50,8 @@ var LineGraph = function(holder_id, data, threshold) {
     draw_gradient();
     draw_threshold();
     draw_white_mask();
-    draw_line();
-    // draw_circles();
+    // draw_line();
+    draw_circles();
     draw_big_circle();
   };
   
@@ -105,7 +105,7 @@ var LineGraph = function(holder_id, data, threshold) {
       draw_circle(
         xPoint(i), 
         yHeight(data[i]),
-        myDotRadius
+        dotRadius
       );
     }
   };
@@ -192,7 +192,7 @@ var LineGraph = function(holder_id, data, threshold) {
 var DailyMessageGraph = function(holder_id, data) {
   var maxY = data.max();
   var data = data;
-  var padding = 30;
+  var padding = 20;
   var labelWidth = 50;
   var paddingTop = 10;
   var holder;
@@ -229,14 +229,16 @@ var DailyMessageGraph = function(holder_id, data) {
       var label = $('<span>')
       label.text(data[i]);
       label.addClass('bar_label');
-      label.css('left', (i * xInterval()) + (xInterval() / 2 ) + 'px')
+      // marginLeft = CSS
+      marginLeft = 20
+      label.css('left', marginLeft + (i * xInterval()) + (xInterval() / 2 ) - labelWidth / 2 + 'px')
       $('#daily_message_canvas_holder').append(label)
     }
   }
   
   // distance in pixels that one data point represents
   var xInterval = function(){
-    return graphSet.graphWidth / (data.length)
+    return (graphSet.graphWidth - leftOffset) / (data.length)
   };
   
   // distnace from the top given a y value
