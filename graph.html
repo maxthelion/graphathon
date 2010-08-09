@@ -30,18 +30,8 @@
 	  
 	  $().ready(function(){
 	    // var graphSet = new GraphSet(data);
-	    var connectionGraph = new LineGraph(
-	      'connection_canvas_holder', 
-	      connection_data,
-	      100,
-	      $('#connection_canvas_holder')
-	    );
-      var messageGraph = new LineGraph(
-        'message_canvas_holder', 
-        message_data, 
-        100,
-        $('#message_canvas_holder')
-      );
+	    var connectionGraph = new LineGraph( 'connection_canvas_holder', connection_data, 100);
+      var messageGraph = new LineGraph('message_canvas_holder', message_data,  100 );
 	    var dailyMessageGraph = new DailyMessageGraph('daily_message_canvas', daily_message_data);
 	    var xLabel = new XLabel($('#x_label'), startDate, endDate);
 	  });

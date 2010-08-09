@@ -18,14 +18,13 @@ pusherlineargradient = function(ctx, graphHeight){
   return lineargradient
 }
 
-var LineGraph = function(holder_id, data, threshold, y_axis_element) {
+var LineGraph = function(holder_id, data, threshold) {
   var graphHeight = 200;
   var maxY = data.max();
   var minY = data.min();
   var data = data;
   var labelElement;
   var threshold = threshold;
-  var y_axis_element = y_axis_element;
   var holder;
   var canvas;
   var ctx;
@@ -34,7 +33,7 @@ var LineGraph = function(holder_id, data, threshold, y_axis_element) {
     holder = $('#' + holder_id);
     canvas_id = holder_id + '_c'
     canvas_html = $('<canvas id="'+canvas_id+'" class="graph_canvas" height="200" width="500"></canvas>');
-    holder.prepend(canvas_html);
+    holder.append(canvas_html);
     canvas = document.getElementById(canvas_id)
     ctx = canvas.getContext('2d');
     
@@ -139,7 +138,7 @@ var LineGraph = function(holder_id, data, threshold, y_axis_element) {
     y_element.append(add_y_label(maxY));
     y_element.append(add_y_label(minY));
     
-    y_axis_element.append(y_element);
+    holder.append(y_element);
   }
   
   var add_y_label = function(y){
