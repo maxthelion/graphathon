@@ -31,19 +31,19 @@
 	  $().ready(function(){
 	    // var graphSet = new GraphSet(data);
 	    var connectionGraph = new LineGraph(
-	      'connection_canvas', 
+	      'connection_canvas_holder', 
 	      connection_data,
 	      $('#connection_label .bignum'),
 	      100,
 	      $('#connection_canvas_holder')
 	    );
-	    var messageGraph = new LineGraph(
-	      'message_canvas', 
-	      message_data, 
-	      $('#message_label .bignum'), 
-	      100,
-	      $('#message_canvas_holder')
-	    );
+      var messageGraph = new LineGraph(
+        'message_canvas_holder', 
+        message_data, 
+        $('#message_label .bignum'), 
+        100,
+        $('#message_canvas_holder')
+      );
 	    var dailyMessageGraph = new DailyMessageGraph('daily_message_canvas', daily_message_data);
 	    var xLabel = new XLabel($('#x_label'), startDate, endDate);
 	  });
@@ -87,7 +87,7 @@
     .yAxis {
       position: absolute;
     }
-    #connection_canvas, #message_canvas, #daily_message_canvas, #x_label {
+    .graph_canvas, #daily_message_canvas, #x_label {
       margin-left: 20px;
     }
     #x_label {
@@ -106,13 +106,11 @@
 <body>
 
 <div id="connection_canvas_holder" class="holder">
-<canvas id="connection_canvas" height="200" width="500"></canvas>
 <div id="connection_label" class="sidething">
   <span class="bignum"></span>
 </div>
 </div>
 <div id="message_canvas_holder" class="holder">
-<canvas id="message_canvas" height="200" width="500"></canvas>
 <div id="message_label" class="sidething">
   <span class="bignum"></span>
 </div>
