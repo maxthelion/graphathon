@@ -86,10 +86,12 @@ var LineGraph = function(holder_id, data, threshold) {
   }
   
   var draw_threshold = function(){
-    ctx.beginPath();
-    ctx.fillStyle = "rgba(255, 0, 0, 0.4)"
-    ctx.rect(leftOffset,0, graphSet.graphWidth, 70);
-    ctx.fill();
+    if (threshold){
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(255, 0, 0, 0.4)"
+      ctx.rect(leftOffset,0, graphSet.graphWidth, threshold);
+      ctx.fill();
+    };
   }
   
   var draw_gradient = function(){

@@ -3,14 +3,6 @@
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
   <script src="graphathon.js" type="text/javascript" charset="utf-8"></script>
   <script type="text/javascript" charset="utf-8">
-    var pusherColor2 = "eee";
-    var pusherColor = "ddd";
-    var lineColor = '#666';
-    var lineWidth = 1;
-    var dotColor = "#555";
-    var dotStrokeWidth = 2;
-    var dotRadius = 4;
-    var xIndex;
 	  
 	  generate_random_data = function(array_length, max){
   	   var array = []
@@ -32,10 +24,20 @@
       graphHeight: 200
     }
 	  
+	  // no good reason to have these here, but the purpose is to make them common
+	  var pusherColor2 = "eee";
+    var pusherColor = "ddd";
+    var lineColor = '#666';
+    var lineWidth = 1;
+    var dotColor = "#555";
+    var dotStrokeWidth = 2;
+    var dotRadius = 4;
+    var xIndex;
+    
 	  $().ready(function(){      
 	    // var graphSet = new GraphSet(data);
 	    var connectionGraph = new LineGraph( 'connection_canvas_holder', connection_data, 100);
-      var messageGraph = new LineGraph('message_canvas_holder', message_data,  100 );
+      var messageGraph = new LineGraph('message_canvas_holder', message_data );
 	    var dailyMessageGraph = new DailyMessageGraph('daily_message_canvas_holder', daily_message_data);
 	    var xLabel = new XLabel($('#x_label'), startDate, endDate);
 	  });
