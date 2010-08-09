@@ -12,14 +12,13 @@ Array.prototype.min = function() {
 }
 
 pusherlineargradient = function(ctx, graphHeight){
-  var lineargradient = ctx.createLinearGradient(0,0,0,graphHeight);  
+  var lineargradient = ctx.createLinearGradient(0,0,0, graphHeight);  
   lineargradient.addColorStop(0.5,  pusherColor);  
   lineargradient.addColorStop(1,  pusherColor2);
   return lineargradient
 }
 
 var LineGraph = function(holder_id, data, threshold) {
-  var graphHeight = 200;
   var maxY = data.max();
   var minY = data.min();
   var data = data;
@@ -32,7 +31,7 @@ var LineGraph = function(holder_id, data, threshold) {
   var initialise = function(){
     holder = $('#' + holder_id);
     canvas_id = holder_id + '_c'
-    canvas_html = $('<canvas id="'+canvas_id+'" class="graph_canvas" height="200" width="500"></canvas>');
+    canvas_html = $('<canvas id="'+canvas_id+'" class="graph_canvas" height="'+graphSet.graphHeight+'" width="'+graphSet.graphWidth+'"></canvas>');
     holder.append(canvas_html);
     canvas = document.getElementById(canvas_id)
     ctx = canvas.getContext('2d');
@@ -61,9 +60,12 @@ var LineGraph = function(holder_id, data, threshold) {
     ctx.moveTo(leftOffset, 0);
     ctx.fillStyle = "white"
     for(var i= 0; i < data.length; i++){       
-      ctx.lineTo(xPoint(i), yHeight(data[i]));
+      ctx.lineTo(
+        xPoint(i), 
+        yHeight(data[i])
+      );
     }
-    ctx.lineTo( graphWidth, 0);
+    ctx.lineTo( graphSet.graphWidth, 0);
     ctx.closePath();
     ctx.fill();
   };
@@ -86,13 +88,13 @@ var LineGraph = function(holder_id, data, threshold) {
   var draw_threshold = function(){
     ctx.beginPath();
     ctx.fillStyle = "rgba(255, 0, 0, 0.4)"
-    ctx.rect(leftOffset,0, graphWidth, 70);
+    ctx.rect(leftOffset,0, graphSet.graphWidth, 70);
     ctx.fill();
   }
   
   var draw_gradient = function(){
-    ctx.fillStyle = pusherlineargradient(ctx, graphHeight);  
-    ctx.rect(leftOffset,0, graphWidth, graphHeight);
+    ctx.fillStyle = pusherlineargradient(ctx, graphSet.graphHeight);  
+    ctx.rect(leftOffset,0, graphSet.graphWidth, graphSet.graphHeight);
     ctx.fill();
   }
   
@@ -144,26 +146,26 @@ var LineGraph = function(holder_id, data, threshold) {
   var add_y_label = function(y){
     var label = $("<span>"+y+"</span>");
     var textHeight = 10;
-    var distanceFromTop = graphHeight - (graphHeight * (y / maxY)) - (textHeight/2)
+    var distanceFromTop = graphSet.graphHeight - (graphSet.graphHeight * (y / maxY)) - (textHeight/2)
     label.css('top', distanceFromTop +"px");
     label.css('position', "absolute");
     return label;
   }
   
   var clearGraph = function(){
-    ctx.clearRect(0,0, graphWidth, graphWidth);
+    ctx.clearRect(0,0, graphSet.graphWidth, graphSet.graphHeight);
   }
   
   var xInterval = function(){
-    return (canvas.width - leftOffset) / (data.length - 1)
+    return (graphSet.graphWidth - leftOffset) / (data.length - 1)
   };
   
   var yHeight = function(y) {
-    return graphHeight - (y * yScale());
+    return graphSet.graphHeight - (y * yScale());
   };
   
   var yScale = function() {
-    return graphHeight / maxY; 
+    return graphSet.graphHeight / maxY; 
   };
   
   initialise();
@@ -185,18 +187,27 @@ var LineGraph = function(holder_id, data, threshold) {
   })
 };
 
-var DailyMessageGraph = function(canvas_id, data) {
-  var canvas = document.getElementById(canvas_id)
-  var ctx = canvas.getContext('2d'); 
-  var graphHeight = 200;
+var DailyMessageGraph = function(holder_id, data) {
   var maxY = data.max();
   var data = data;
   var padding = 30;
   var labelWidth = 50;
   var paddingTop = 10;
+  var holder;
+  var ctx;
+  var canvas;
+  
+  var initialise = function(){
+    holder = $('#' + holder_id);
+    canvas_id = holder_id + '_c'
+    canvas_html = $('<canvas id="'+canvas_id+'" class="graph_canvas" height="'+graphSet.graphHeight+'" width="'+graphSet.graphWidth+'"></canvas>');
+    holder.append(canvas_html);
+    canvas = document.getElementById(canvas_id)
+    ctx = canvas.getContext('2d');
+  };
   
   var draw = function(){
-    ctx.fillStyle = pusherlineargradient(ctx, graphHeight);
+    ctx.fillStyle = pusherlineargradient(ctx, graphSet.graphHeight);
     ctx.beginPath();
     for(var i= 0; i < data.length; i++){
       roundedRect(
@@ -223,12 +234,12 @@ var DailyMessageGraph = function(canvas_id, data) {
   
   // distance in pixels that one data point represents
   var xInterval = function(){
-    return canvas.width / (data.length)
+    return graphSet.graphWidth / (data.length)
   };
   
   // distnace from the top given a y value
   var yTopOffset = function(y){
-    return graphHeight - yHeight(y);
+    return graphSet.graphHeight - yHeight(y);
   };
   
   // height of a column
@@ -238,7 +249,7 @@ var DailyMessageGraph = function(canvas_id, data) {
   
   // the scale factor to convert a point of data to pixel amount on the y axis
   var yScale = function() {
-    return (graphHeight - paddingTop) / maxY; 
+    return (graphSet.graphHeight - paddingTop) / maxY; 
   };
   
   // distance from the left to draw a column
@@ -258,12 +269,13 @@ var DailyMessageGraph = function(canvas_id, data) {
     ctx.fill();  
   };
   
+  initialise();
   draw();
 };
 
 var XLabel = function(element, startDate, endDate){
   var labelData = ['mon', 'tues', 'weds', 'thurs', 'fri'];
-  var xInterval = graphWidth / labelData.length;
+  var xInterval = graphSet.graphWidth / labelData.length;
   var element = element;
   labelWidth = 50;
   

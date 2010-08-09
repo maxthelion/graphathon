@@ -23,16 +23,20 @@
 	  connection_data = generate_random_data(30, 100);
 	  message_data = generate_random_data(100, 150);
 	  daily_message_data = generate_random_data(5, 10);
+	  
 	  var startDate;
 	  var endDate;
 	  var leftOffset = 0;
-    var graphWidth = 500;
+    var graphSet = {
+      graphWidth: 500,
+      graphHeight: 200
+    }
 	  
-	  $().ready(function(){
+	  $().ready(function(){      
 	    // var graphSet = new GraphSet(data);
 	    var connectionGraph = new LineGraph( 'connection_canvas_holder', connection_data, 100);
       var messageGraph = new LineGraph('message_canvas_holder', message_data,  100 );
-	    var dailyMessageGraph = new DailyMessageGraph('daily_message_canvas', daily_message_data);
+	    var dailyMessageGraph = new DailyMessageGraph('daily_message_canvas_holder', daily_message_data);
 	    var xLabel = new XLabel($('#x_label'), startDate, endDate);
 	  });
   </script>
@@ -93,17 +97,9 @@
 </head>
 <body>
 
-<div id="connection_canvas_holder" class="holder">
-</div>
-<div id="message_canvas_holder" class="holder">
-<div id="message_label" class="sidething">
-  <span class="bignum"></span>
-</div>
-</div>
-<div id="daily_message_canvas_holder" class="holder">
-<canvas id="daily_message_canvas" height="200" width="500"></canvas>
-</div>
-<div id="x_label">
-</div>
+<div id="connection_canvas_holder" class="holder"></div>
+<div id="message_canvas_holder" class="holder"></div>
+<div id="daily_message_canvas_holder" class="holder"></div>
+<div id="x_label"></div>
 </body>
 </html>
