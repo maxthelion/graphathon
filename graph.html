@@ -30,14 +30,14 @@
 	  
 	  $().ready(function(){
 	    // var graphSet = new GraphSet(data);
-	    var connectionGraph = new ConnectionGraph(
+	    var connectionGraph = new LineGraph(
 	      'connection_canvas', 
 	      connection_data,
 	      $('#connection_label .bignum'),
 	      100,
 	      $('#connection_canvas_holder')
 	    );
-	    var messageGraph = new ConnectionGraph(
+	    var messageGraph = new LineGraph(
 	      'message_canvas', 
 	      message_data, 
 	      $('#message_label .bignum'), 

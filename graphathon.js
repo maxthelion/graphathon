@@ -18,7 +18,7 @@ pusherlineargradient = function(ctx, graphHeight){
   return lineargradient
 }
 
-var ConnectionGraph = function(canvas_id, data, label, threshold, y_axis_element) {
+var LineGraph = function(canvas_id, data, label, threshold, y_axis_element) {
   var canvas = document.getElementById(canvas_id)
   var ctx = canvas.getContext('2d'); 
   var graphHeight = 200;
