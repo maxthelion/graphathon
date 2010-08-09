@@ -33,14 +33,12 @@
 	    var connectionGraph = new LineGraph(
 	      'connection_canvas_holder', 
 	      connection_data,
-	      $('#connection_label .bignum'),
 	      100,
 	      $('#connection_canvas_holder')
 	    );
       var messageGraph = new LineGraph(
         'message_canvas_holder', 
         message_data, 
-        $('#message_label .bignum'), 
         100,
         $('#message_canvas_holder')
       );
@@ -106,9 +104,6 @@
 <body>
 
 <div id="connection_canvas_holder" class="holder">
-<div id="connection_label" class="sidething">
-  <span class="bignum"></span>
-</div>
 </div>
 <div id="message_canvas_holder" class="holder">
 <div id="message_label" class="sidething">

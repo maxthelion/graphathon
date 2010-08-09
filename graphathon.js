@@ -18,12 +18,12 @@ pusherlineargradient = function(ctx, graphHeight){
   return lineargradient
 }
 
-var LineGraph = function(holder_id, data, label, threshold, y_axis_element) {
+var LineGraph = function(holder_id, data, threshold, y_axis_element) {
   var graphHeight = 200;
   var maxY = data.max();
   var minY = data.min();
   var data = data;
-  var labelElement = label;
+  var labelElement;
   var threshold = threshold;
   var y_axis_element = y_axis_element;
   var holder;
@@ -37,6 +37,14 @@ var LineGraph = function(holder_id, data, label, threshold, y_axis_element) {
     holder.prepend(canvas_html);
     canvas = document.getElementById(canvas_id)
     ctx = canvas.getContext('2d');
+    
+    // create connection_label    
+    // <div id="connection_label" class="sidething">
+    //   <span class="bignum"></span>
+    // </div>
+    var side_thing = $('<div id="'+holder_id+'_l" class="sidething"></div>')
+    holder.append(side_thing)
+    labelElement = side_thing;
   };
   
   var draw = function(){
@@ -165,7 +173,9 @@ var LineGraph = function(holder_id, data, label, threshold, y_axis_element) {
   
   $(canvas).mousemove(function(evt){
     xIndex = Math.floor( evt.offsetX/xInterval() )
-    labelElement.html( Math.floor(data[xIndex]) )
+    labelElement.html( 
+      '<span class="bignum">' + Math.floor(data[xIndex]) + '</span>' 
+    )
     draw();
   })
   
