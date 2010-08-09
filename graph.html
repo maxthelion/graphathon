@@ -2,13 +2,27 @@
 <head>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
   <script type="text/javascript" charset="utf-8">
+    var pusherColor2 = "eee";
     var pusherColor = "ddd";
-    var pusherColor2 = "aaa";
-    var lineColor = '#555';
+    var lineColor = '#666';
+    var lineWidth = 1;
     var dotColor = "#555";
     var dotStrokeWidth = 2;
     var dotRadius = 4;
     var xIndex;
+    
+    Array.prototype.max = function() {
+      var max = this[0];
+      var len = this.length;
+      for (var i = 1; i < len; i++) if (this[i] > max) max = this[i];
+      return max;
+    }
+    Array.prototype.min = function() {
+      var min = this[0];
+      var len = this.length;
+      for (var i = 1; i < len; i++) if (this[i] < min) min = this[i];
+      return min;
+    }
     
     pusherlineargradient = function(ctx, graphHeight){
       var lineargradient = ctx.createLinearGradient(0,0,0,graphHeight);  
@@ -21,10 +35,8 @@
 	    var canvas = document.getElementById(canvas_id)
 	    var ctx = canvas.getContext('2d'); 
 	    var graphHeight = 200;
-	    var graphWidth = 500;
-	    var leftOffset = 5;
-	    var maxY = 150; //hard coded
-	    var minY = 0; //hard coded
+	    var maxY = data.max();
+	    var minY = data.min();
 	    var data = data;
 	    var labelElement = label;
 	    var threshold = threshold;
@@ -34,19 +46,33 @@
 	      clearGraph()
 	      draw_gradient();
 	      draw_threshold();
-        ctx.beginPath();
+        draw_white_mask();
+        draw_line();
+        // draw_circles();
+        draw_big_circle();
+	    };
+	    
+	    var draw_white_mask = function(){
+	      ctx.beginPath();
         ctx.moveTo(leftOffset, 0);
         ctx.fillStyle = "white"
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = lineColor;
         for(var i= 0; i < data.length; i++){       
-          ctx.lineTo(xPoint(i), yHeight(data[i]))
+          ctx.lineTo(xPoint(i), yHeight(data[i]));
         }
         ctx.lineTo( graphWidth, 0);
         ctx.closePath();
         ctx.fill();
+	    };
+	    
+	    var draw_line = function(){
+	      ctx.beginPath();
+        ctx.moveTo(leftOffset, yHeight(data[i]));
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = lineColor;
+        for(var i= 0; i < data.length; i++){       
+          ctx.lineTo(xPoint(i), yHeight(data[i]))
+        }
         ctx.stroke();
-        draw_circles();
 	    };
 	    
 	    var xPoint = function(i){
@@ -60,7 +86,7 @@
 	      ctx.fill();
 	    }
 	    
-	    var draw_gradient= function(){
+	    var draw_gradient = function(){
 	      ctx.fillStyle = pusherlineargradient(ctx, graphHeight);  
 	      ctx.rect(leftOffset,0, graphWidth, graphHeight);
 	      ctx.fill();
@@ -68,26 +94,40 @@
 	    
 	    var draw_circles = function(){
 	      for(var i= 0; i < data.length; i++){
-	        ctx.strokeStyle = "white"
-	        ctx.lineWidth = dotStrokeWidth;
-	        ctx.beginPath();
-	        ctx.fillStyle = dotColor;
-	        myDotRadius = (i == xIndex) ? 10 : dotRadius
-	        ctx.arc(
+	        draw_circle(
 	          xPoint(i), 
 	          yHeight(data[i]),
-	          myDotRadius,
-	          0,
-	          Math.PI*2,
-	          true
+	          myDotRadius
 	        );
-	        ctx.fill();
-	        ctx.stroke();
 	      }
 	    };
 	    
+	    var draw_circle = function(x, y, radius) {
+	      ctx.strokeStyle = "white"
+        ctx.lineWidth = dotStrokeWidth;
+        ctx.beginPath();
+        ctx.fillStyle = dotColor;
+        ctx.arc(
+          x, 
+          y,
+          radius,
+          0,
+          Math.PI*2,
+          true
+        );
+        ctx.fill();
+        ctx.stroke();
+	    }
+	    
+	    var draw_big_circle = function(){
+	      draw_circle(
+          xPoint(xIndex), 
+          yHeight(data[xIndex]),
+          10
+        );
+	    }
+	    
 	    var draw_y_axis = function(){
-	      console.log(y_axis_element);
 	      var y_element = $('<div>');
 	      y_element.addClass('yAxis');
 	      
@@ -96,9 +136,12 @@
         
 	      y_axis_element.append(y_element);
 	    }
+	    
 	    var add_y_label = function(y){
-	      label = $("<span>"+y+"</span>");
-	      label.css('top', "10px");
+	      var label = $("<span>"+y+"</span>");
+	      var textHeight = 10;
+	      var distanceFromTop = graphHeight - (graphHeight * (y / maxY)) - (textHeight/2)
+	      label.css('top', distanceFromTop +"px");
 	      label.css('position', "absolute");
 	      return label;
 	    }
@@ -112,7 +155,7 @@
 	    };
 	    
 	    var yHeight = function(y) {
-	      return graphHeight - (y * yScale()) ;
+	      return graphHeight - (y * yScale());
 	    };
 	    
 	    var yScale = function() {
@@ -139,10 +182,11 @@
 	    var canvas = document.getElementById(canvas_id)
 	    var ctx = canvas.getContext('2d'); 
 	    var graphHeight = 200;
-	    var graphWidth = 500;
-	    var leftOffset = 0;
-	    var maxY = 10; //hard coded
+	    var maxY = data.max();
 	    var data = data;
+	    var padding = 30;
+	    var labelWidth = 50;
+	    var paddingTop = 10;
 	    
 	    var draw = function(){
         ctx.fillStyle = pusherlineargradient(ctx, graphHeight);
@@ -150,9 +194,9 @@
 	      for(var i= 0; i < data.length; i++){
 	        roundedRect(
 	          ctx,
-	          i * xInterval() + 10, 
+	          xPoint(i), 
 	          yTopOffset(data[i]),
-	          xInterval() - 20,
+	          xInterval() - padding,
 	          yHeight(data[i]),
 	          10
 	        )
@@ -165,25 +209,34 @@
 	        var label = $('<span>')
 	        label.text(data[i]);
 	        label.addClass('bar_label');
-	        label.css('left', i * xInterval() + (xInterval() / 2 ) - 25 + 'px')
+	        label.css('left', (i * xInterval()) + (xInterval() / 2 ) + 'px')
 	        $('#daily_message_canvas_holder').append(label)
 	      }
 	    }
 	    
+	    // distance in pixels that one data point represents
 	    var xInterval = function(){
 	      return canvas.width / (data.length)
 	    };
 	    
+	    // distnace from the top given a y value
 	    var yTopOffset = function(y){
 	      return graphHeight - yHeight(y);
 	    };
 	    
+	    // height of a column
 	    var yHeight = function(y) {
 	      return  y * yScale();
 	    };
 	    
+	    // the scale factor to convert a point of data to pixel amount on the y axis
 	    var yScale = function() {
-	      return graphHeight / maxY; 
+	      return (graphHeight - paddingTop) / maxY; 
+	    };
+	    
+	    // distance from the left to draw a column
+	    var xPoint = function(i){
+	      return i * xInterval() + padding / 2 + leftOffset;
 	    };
 	    
 	    function roundedRect(ctx,x,y,width,height,radius){  
@@ -201,6 +254,29 @@
 	    draw();
 	  };
 	  
+	  var XLabel = function(element, startDate, endDate){
+      var labelData = ['mon', 'tues', 'weds', 'thurs', 'fri'];
+	    var xInterval = graphWidth / labelData.length;
+	    var element = element;
+	    labelWidth = 50;
+	    
+	    var draw = function(){
+        for (var i=0; i < labelData.length; i++) {
+          var label = labelData[i];
+          var span = $('<span>');
+          span.css('left', myleft(i) + 'px')
+          span.text(label)
+          element.append(span);
+        };
+	    };
+	    
+	    var myleft = function(i){
+	      return i * xInterval + (labelWidth/2);
+	    };
+	    
+	    draw()
+	  }
+	  
 	  generate_random_data = function(array_length, max){
   	   var array = []
   	   for(var i = 0; i < array_length; i++){
@@ -210,10 +286,15 @@
 	  }
 	  
 	  connection_data = generate_random_data(30, 100);
-	  message_data = generate_random_data(100, 100);
+	  message_data = generate_random_data(100, 150);
 	  daily_message_data = generate_random_data(5, 10);
+	  var startDate;
+	  var endDate;
+	  var leftOffset = 0;
+    var graphWidth = 500;
 	  
 	  $().ready(function(){
+	    // var graphSet = new GraphSet(data);
 	    var connectionGraph = new ConnectionGraph(
 	      'connection_canvas', 
 	      connection_data,
@@ -229,6 +310,7 @@
 	      $('#message_canvas_holder')
 	    );
 	    var dailyMessageGraph = new DailyMessageGraph('daily_message_canvas', daily_message_data);
+	    var xLabel = new XLabel($('#x_label'), startDate, endDate);
 	  });
   </script>
   <style type="text/css" media="screen">
@@ -237,6 +319,8 @@
     }
     canvas {
       float: left;
+      border-left: 1px solid silver;
+      border-bottom: 1px solid silver;
     }
     .sidething {
       float: left;
@@ -260,6 +344,7 @@
       font-size: 2em;
       width: 50px;
       text-align: center;
+      background: cyan;
     }
     #daily_message_canvas_holder {
       position: relative;
@@ -267,8 +352,19 @@
     .yAxis {
       position: absolute;
     }
-    #connection_canvas, #message_canvas {
+    #connection_canvas, #message_canvas, #daily_message_canvas, #x_label {
       margin-left: 20px;
+    }
+    #x_label {
+      clear: both;
+      position:relative;
+    }
+    #x_label span {
+      position:absolute;
+      display: block;
+      width: 50px;
+      text-align: center;
+      background: yellow;
     }
   </style>
 </head>
@@ -277,17 +373,19 @@
 <div id="connection_canvas_holder" class="holder">
 <canvas id="connection_canvas" height="200" width="500"></canvas>
 <div id="connection_label" class="sidething">
-  <span class="bignum">300</span>
+  <span class="bignum"></span>
 </div>
 </div>
 <div id="message_canvas_holder" class="holder">
 <canvas id="message_canvas" height="200" width="500"></canvas>
 <div id="message_label" class="sidething">
-  <span class="bignum">300</span>
+  <span class="bignum"></span>
 </div>
 </div>
 <div id="daily_message_canvas_holder" class="holder">
 <canvas id="daily_message_canvas" height="200" width="500"></canvas>
+</div>
+<div id="x_label">
 </div>
 </body>
 </html>
